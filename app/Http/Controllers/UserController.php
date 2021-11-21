@@ -10,6 +10,20 @@ use App\Models\User;
 class UserController extends Controller
 {
     //
+    function validate_user(Request $request)
+    {
+        $user = User::where('email', $request->email)
+            ->where('username', $request->username)
+            ->where('telephone', $request->telephone)
+            ->first();
+
+        if ($user) {
+            return ['success' => true, 'user_id' => $user->id];
+        } else {
+            return ['success' => false, 'message' => 'User not found'];
+        }
+    }
+
     function register(Request $request)
     {
         // check email or username is exist
@@ -77,6 +91,19 @@ class UserController extends Controller
             return ['success' => true, 'user' => $user];
         } else {
             return ['success' => false, 'message' => 'Wrong password.'];
+        }
+    }
+
+    function reset_password(Request $request)
+    {
+        $user = User::where('id', $request->id)->first();
+        if ($user) {
+            $user->update([
+                'password' => Hash::make($request->newPassword),
+            ]);
+            return ['success' => true, 'user' => $user];
+        } else {
+            return ['success' => false, 'message' => 'Something wrong!'];
         }
     }
 }

@@ -19,9 +19,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('validate_user', [UserController::class, 'validate_user']);
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 Route::post('set_info', [UserController::class, 'set_info']);
 Route::post('set_password', [UserController::class, 'set_password']);
+Route::post('reset_password', [UserController::class, 'reset_password']);
 
 Route::post('set_payment', [BankAccountController::class, 'set_payment']);
