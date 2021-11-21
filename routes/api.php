@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BankAccountController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,3 +23,5 @@ Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 Route::post('set_info', [UserController::class, 'set_info']);
 Route::post('set_password', [UserController::class, 'set_password']);
+
+Route::post('set_payment', [BankAccountController::class, 'set_payment']);
