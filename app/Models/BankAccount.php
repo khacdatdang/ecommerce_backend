@@ -11,12 +11,17 @@ class BankAccount extends Model
 
     protected $fillable = [
         'name',
-        'account_number',
-        'bank_name',
-        'id'
+        'card_number',
+        'id_number',
+        'exp_date',
+    ];
+
+    protected $casts = [
+        'exp_date' => 'date',
     ];
 
     protected $guarded = [
+        'id',
     ];
 
 }
