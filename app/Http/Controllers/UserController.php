@@ -12,7 +12,7 @@ use App\Models\User;
 class UserController extends Controller
 {
     //
-    function validate_user(Request $request)
+    function find_user(Request $request)
     {
         $user = User::where('email', $request->email)
             ->where('username', $request->username)
@@ -70,7 +70,7 @@ class UserController extends Controller
         }
     }
 
-    function login(Request $request)
+    function validate_user(Request $request)
     {
         $messages = [
             'login.min'     =>   "Username is too short (minimum is 6 characters)",
@@ -123,7 +123,7 @@ class UserController extends Controller
             'name'             => 'required|min:5|max:40',
             'email'            => ['required','email', 'string', Rule::unique('users')->ignore($request->id)],
             'telephone'        => ['nullable','regex:/^([0-9\s\-\+\(\)]*)$/','digits_between:10,12', Rule::unique('users')->ignore($request->id)],
-            'gender'           => 'nullable|in:male,female,others',
+            'gender'           => 'nullable',
             'address'          => 'nullable|min:15|max:100',
             'birthday'         => 'nullable|date|date_format:Y-m-d',
         ];
