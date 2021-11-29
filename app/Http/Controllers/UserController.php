@@ -168,6 +168,8 @@ class UserController extends Controller
         $messages = [
             'password.min'             =>   "Password is too short (minimum is 8 characters)",
             'password.max'             =>   "Password is too long (maximum is 30 characters)",
+            'newPassword.min'          =>   "New Password is too short (minimum is 8 characters)",
+            'newPassword.max'          =>   "New Password is too long (maximum is 30 characters)",
             'confirmPassword.min'      =>   "Confirm password is too short (minimum is 8 characters)",
             'confirmPassword.max'      =>   "Confirm password is too long (maximum is 30 characters)",
             'confirmPassword.same'     =>   "Password and Confirm password fields must match exactly",
@@ -175,7 +177,8 @@ class UserController extends Controller
 
         $rules = [
             'password'         => 'required|min:8|max:30',
-            'confirmPassword'  => 'required|min:8|max:30|same:password',
+            'newPassword'      => 'required|min:8|max:30',
+            'confirmPassword'  => 'required|min:8|max:30|same:newPassword',
         ];
 
         //validation form
