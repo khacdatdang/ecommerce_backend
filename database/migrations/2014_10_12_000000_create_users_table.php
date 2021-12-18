@@ -24,6 +24,8 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('role')->default('user');
+            // customer_id
+            $table->unsignedBigInteger('customer_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

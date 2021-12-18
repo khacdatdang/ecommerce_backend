@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'gender',
         'address',
+        'customer_id',
     ];
 
     protected $casts = [
@@ -48,4 +49,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    // user belongs_to customer
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

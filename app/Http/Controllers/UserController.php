@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Models\User;
+use App\Models\Customer;
 
 class UserController extends Controller
 {
@@ -52,20 +53,51 @@ class UserController extends Controller
         $validate =  Validator::make($request->all(), $rules, $messages);
 
         if ($validate->fails()) {
-            return ['success' => 0, 'message' => $validate->errors()->first()];
+            return ['success' => false, 'message' => $validate->errors()->first()];
         } else {
             // check email or username is exist
             $user = User::where('email', $request->email)
                 ->orWhere('username', $request->username)
+                ->orWhere('telephone', $request->telephone)
                 ->first();
+
             if ($user) {
-                return ['success' => false, 'message' => 'Email or Username is exist'];
+                return ['success' => false, 'message' => 'Email, Username or Phone is exist'];
             }
-            $user = User::create([
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+
+            // check customer already exists in database
+            // if not create new customer then create user
+            // if yes, create user
+            $customer = Customer::where('telephone', $request->telephone)->first();
+
+            if ($customer) {
+                $user = User::create([
+                    'username' => $request->username,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'telephone' => $request->telephone,
+                    'customer_id' => $customer->id,
+                ]);
+                // update customer id
+                $customer = $customer->update([
+                    'user_id' => $user->id
+                ]);
+            } else {
+                $customer = Customer::create([
+                    'telephone' => $request->telephone,
+                ]);
+                $user = User::create([
+                    'username' => $request->username,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'telephone' => $request->telephone,
+                    'customer_id' => $customer->id,
+                ]);
+                $customer = $customer->update([
+                    'user_id' => $user->id
+                ]);
+            }
+
             return ['success' => true, 'user' => $user];
         }
     }
@@ -121,8 +153,8 @@ class UserController extends Controller
 
         $rules = [
             'name'             => 'required|min:5|max:40',
-            'email'            => ['required','email', 'string', Rule::unique('users')->ignore($request->id)],
-            'telephone'        => ['nullable','regex:/^([0-9\s\-\+\(\)]*)$/','digits_between:10,12', Rule::unique('users')->ignore($request->id)],
+            'email'            => ['required', 'email', 'string', Rule::unique('users')->ignore($request->id)],
+            'telephone'        => ['nullable', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'digits_between:10,12', Rule::unique('users')->ignore($request->id)],
             'gender'           => 'nullable',
             'address'          => 'nullable|min:15|max:100',
             'birthday'         => 'nullable|date|date_format:Y-m-d',
@@ -135,18 +167,17 @@ class UserController extends Controller
             return ['success' => 0, 'message' => $validate->errors()->first()];
         } else {
             $user = User::where('id', $request->id)->first();
-            if (!is_null($request->telephone)){
+            if (!is_null($request->telephone)) {
                 $check = User::where('email', $request->email)
-                ->orWhere('telephone', $request->telephone)
-                ->first();
-            }
-            else {
+                    ->orWhere('telephone', $request->telephone)
+                    ->first();
+            } else {
                 $check = User::where('email', $request->email)->first();
             }
 
             if ($check) {
                 if ($check->id != $user->id) {
-                    return ['success' => false, 'message' => 'Email or Phone is exist' . ' check:' . $check->email .',user: ' . $user->id . $request->email . $request->telephone];
+                    return ['success' => false, 'message' => 'Email or Phone is exist' . ' check:' . $check->email . ',user: ' . $user->id . $request->email . $request->telephone];
                 }
             }
 
@@ -207,6 +238,18 @@ class UserController extends Controller
                 'password' => Hash::make($request->newPassword),
             ]);
             return ['success' => true, 'user' => $user];
+        } else {
+            return ['success' => false, 'message' => 'Something wrong!'];
+        }
+    }
+
+    function get_orders($id)
+    {
+        $user = User::where('id', $id)->first();
+        if ($user) {
+            $customer = $user->customer;
+            $orders = $customer->orders;
+            return ['success' => true, 'orders' => $orders];
         } else {
             return ['success' => false, 'message' => 'Something wrong!'];
         }
