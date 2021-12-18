@@ -34,3 +34,5 @@ Route::post('set_password', [UserController::class, 'set_password']);
 Route::post('reset_password', [UserController::class, 'reset_password']);
 Route::post('set_payment', [BankAccountController::class, 'set_payment']);
 Route::get('get_orders/{id}', [UserController::class, 'get_orders']);
+Route::get('get_active_user', [UserController::class, 'get_active_user']);
+Route::get('get_inactive_user', [UserController::class, 'get_inactive_user']);

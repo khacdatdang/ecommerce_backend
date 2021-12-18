@@ -8,10 +8,31 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Models\User;
-use App\Models\Customer;
 
 class UserController extends Controller
 {
+    //
+    function findCustomer(Request $request)
+    {
+        $user = User::where('telephone', $request->telephone)->first();
+        if ($user) {
+            return ['success' => true, 'user_id' => $user->id];
+        } else {
+            return ['success' => false, 'message' => 'User not found'];
+        }
+    }
+
+    // register with telephone
+    function registerCustomer(Request $request)
+    {
+        $user = User::where('telephone', $request->telephone)->first();
+        if (!$user) {
+            $user = User::create([
+                'telephone' => $request->telephone,
+            ]);
+        }
+        return ['success' => true, 'user_id' => $user->id];
+    }
     //
     function find_user(Request $request)
     {
@@ -43,7 +64,7 @@ class UserController extends Controller
         ];
 
         $rules = [
-            'username'         => 'required|min:6|max:30',
+            'username'         => 'required|min:6|max:30|unique:users',
             'email'            => 'required|email|unique:users',
             'password'         => 'required|min:8|max:30',
             'confirmPassword' => 'required|min:8|max:30|same:password',
@@ -55,50 +76,27 @@ class UserController extends Controller
         if ($validate->fails()) {
             return ['success' => false, 'message' => $validate->errors()->first()];
         } else {
-            // check email or username is exist
-            $user = User::where('email', $request->email)
-                ->orWhere('username', $request->username)
-                ->orWhere('telephone', $request->telephone)
-                ->first();
-
+            $user = User::where('telephone', $request->telephone)->first();
             if ($user) {
-                return ['success' => false, 'message' => 'Email, Username or Phone is exist'];
-            }
-
-            // check customer already exists in database
-            // if not create new customer then create user
-            // if yes, create user
-            $customer = Customer::where('telephone', $request->telephone)->first();
-
-            if ($customer) {
-                $user = User::create([
+                $user->update([
                     'username' => $request->username,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
-                    'telephone' => $request->telephone,
-                    'customer_id' => $customer->id,
+                    'status' => 'active',
+                    'role' => 'user',
                 ]);
-                // update customer id
-                $customer = $customer->update([
-                    'user_id' => $user->id
-                ]);
+                return ['success' => true, 'user' => $user];
             } else {
-                $customer = Customer::create([
-                    'telephone' => $request->telephone,
-                ]);
                 $user = User::create([
                     'username' => $request->username,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
                     'telephone' => $request->telephone,
-                    'customer_id' => $customer->id,
+                    'role' => 'user',
+                    'status' => 'active',
                 ]);
-                $customer = $customer->update([
-                    'user_id' => $user->id
-                ]);
+                return ['success' => true, 'user' => $user];
             }
-
-            return ['success' => true, 'user' => $user];
         }
     }
 
@@ -247,11 +245,20 @@ class UserController extends Controller
     {
         $user = User::where('id', $id)->first();
         if ($user) {
-            $customer = $user->customer;
-            $orders = $customer->orders;
+            $orders = $user->orders;
             return ['success' => true, 'orders' => $orders];
         } else {
             return ['success' => false, 'message' => 'Something wrong!'];
         }
+    }
+
+    function get_active_user() {
+        $active = User::where('status', 'active')->get();
+        return ['success' => true, 'users' => $active];
+    }
+
+    function get_inactive_user() {
+        $inactive = User::where('status', 'inactive')->get();
+        return ['success' => true, 'users' => $inactive];
     }
 }

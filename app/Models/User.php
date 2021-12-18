@@ -26,7 +26,7 @@ class User extends Authenticatable
         'password',
         'gender',
         'address',
-        'customer_id',
+        'status',
     ];
 
     protected $casts = [
@@ -50,9 +50,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    // user belongs_to customer
-    public function customer()
+    // user has many orders
+    public function orders()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->hasMany(Order::class);
     }
 }

@@ -19,13 +19,12 @@ class CreateUsersTable extends Migration
             $table->string('gender')->nullable();
             $table->string('address')->nullable();
             $table->date('birthday')->nullable();
-            $table->string('telephone')->nullable();
-            $table->string('username')->unique();
-            $table->string('email')->unique();
-            $table->string('password');
+            $table->string('telephone')->unique();
+            $table->string('username')->unique()->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->string('password')->nullable();
             $table->string('role')->default('user');
-            // customer_id
-            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->string('status')->default('inactive');
             $table->rememberToken();
             $table->timestamps();
         });

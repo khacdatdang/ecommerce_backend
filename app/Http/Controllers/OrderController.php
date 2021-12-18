@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class OrderController extends Controller
 {
@@ -38,15 +39,16 @@ class OrderController extends Controller
         // check customer already exists in database
         // if not create new customer
         // if yes, add new order
-        $customer = Customer::where('telephone', $request->telephone)->first();
-        if (!$customer) {
-            $customer = Customer::create([
+        $user = User::where('telephone', $request->telephone)->first();
+        if (!$user) {
+            $user = User::create([
                 'telephone' => $request->telephone,
             ]);
         }
 
+
         $order = Order::create([
-            'customer_id' => $customer->id,
+            'user_id' => $user->id,
             'product_id' => $request->product_id,
             'quantity' => $request->quantity,
             'price' => $request->price,
