@@ -246,9 +246,16 @@ class UserController extends Controller
         $user = User::where('id', $id)->first();
         if ($user) {
             $orders = $user->orders;
-            return ['success' => true, 'orders' => $orders];
+            return response()->json([
+                'order' => $orders,
+                'status' => 200
+            ]);
+            // return ['success' => true, 'orders' => $orders];
         } else {
-            return ['success' => false, 'message' => 'Something wrong!'];
+            return response()->json([
+                'message' => 'Cannot found',
+            ], 404);
+            // return ['success' => false, 'message' => 'Something wrong!'];
         }
     }
 
